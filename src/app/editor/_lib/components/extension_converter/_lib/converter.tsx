@@ -3,7 +3,7 @@ import { useWorker } from "./provider";
 const Converter = () => {
   const { isProcess, outputUrl, handleWorkerFile, ext } = useWorker();
   return isProcess ? (
-    <>"로딩중..."</>
+    <>로딩중...</>
   ) : (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <input type="file" accept="image/*" onChange={handleWorkerFile}></input>
