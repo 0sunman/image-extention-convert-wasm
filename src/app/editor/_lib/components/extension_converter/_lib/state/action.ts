@@ -1,0 +1,4 @@
+export const ACTION_SET_OUTPUT_URL = "ACTION_SET_OUTPUT_URL" as const;
+export const ACTION_SET_START_PROCESS = "ACTION_SET_START_PROCESS" as const;
+export const ACTION_SET_END_PROCESS = "ACTION_SET_END_PROCESS" as const;
+export const ACTION_SET_EXT = "ACTION_SET_EXT" as const;

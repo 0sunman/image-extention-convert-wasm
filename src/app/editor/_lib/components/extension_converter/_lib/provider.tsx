@@ -4,17 +4,21 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useReducer,
   useRef,
-  useState,
 } from "react";
+import ConverterReducer from "./state/reducer";
+import { onFileHandle, onMessage } from "./listener";
 
 const Context = createContext<any>(null);
 
 export default function WorkerProvider({ children }: { children: ReactNode }) {
   const workerRef = useRef<Nullable<Worker>>(null);
-  const [outputUrl, setOutputUrl] = useState<string>();
-  const [isProcess, setIsProcess] = useState<boolean>(true);
-  const [ext, setExt] = useState<string>("webp");
+  const [state, dispatch] = useReducer(ConverterReducer, {
+    outputUrl: "",
+    processing: true,
+    ext: "webp",
+  });
 
   useEffect(() => {
     workerRef.current = new Worker(new URL("./worker.ts", import.meta.url), {
@@ -22,45 +26,26 @@ export default function WorkerProvider({ children }: { children: ReactNode }) {
     });
 
     workerRef.current.postMessage({ type: "init" });
-    workerRef.current.onmessage = (e) => {
-      switch (e.data.type) {
-        case "loaded":
-          setIsProcess(false);
-          break;
-        case "done":
-          setOutputUrl(URL.createObjectURL(e.data.blob));
-          setIsProcess(false);
-          break;
-        default:
-      }
-    };
+    workerRef.current.onmessage = onMessage(dispatch);
     return () => {
       workerRef.current?.terminate();
     };
   }, []);
 
-  const handleWorkerFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e) return;
-    const file = e.target.files?.[0];
-    if (!file || !workerRef.current) return;
-
-    const buf = await file.arrayBuffer();
-    workerRef.current.postMessage({
-      type: "convert",
-      buffer: buf,
-      to: ext,
-    });
-    setIsProcess(true);
-  };
+  const handleWorkerFile = onFileHandle({
+    workerInstance: workerRef.current,
+    state,
+    dispatch,
+  });
   return (
     <Context.Provider
       value={{
-        isProcess,
         workerRef,
         handleWorkerFile,
-        outputUrl,
-        setOutputUrl,
-        ext,
+        isProcess: state.processing,
+        outputUrl: state.outputUrl,
+        ext: state.ext,
+        dispatch,
       }}
     >
       {children}

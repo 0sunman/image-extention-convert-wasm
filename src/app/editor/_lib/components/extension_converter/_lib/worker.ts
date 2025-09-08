@@ -1,6 +1,5 @@
 import {
   ImageMagick,
-  IMagickImage,
   initializeImageMagick,
   MagickFormat,
 } from "@imagemagick/magick-wasm";
