@@ -17,7 +17,7 @@ export default function WorkerProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(ConverterReducer, {
     outputUrl: "",
     processing: true,
-    ext: "webp",
+    ext: "",
   });
 
   useEffect(() => {
